@@ -1,0 +1,6 @@
+@WordMakersBackend_HostAddress = http://localhost:5178
+
+GET {{WordMakersBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
