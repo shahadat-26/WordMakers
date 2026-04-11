@@ -19,6 +19,8 @@ namespace WordMakersBackend.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.HasDefaultSchema("wordmakers");
+
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(e => e.Username).IsUnique();

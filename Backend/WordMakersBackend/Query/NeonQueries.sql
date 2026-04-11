@@ -1,0 +1,115 @@
+-- WordMakers - Neon Database Setup Queries
+-- Schema: wordmakers (already created)
+-- Run these queries in Neon SQL Editor
+
+SET search_path TO wordmakers;
+
+-- 1. Users Table
+CREATE TABLE IF NOT EXISTS "Users" (
+    "Id" SERIAL PRIMARY KEY,
+    "Username" VARCHAR(50) NOT NULL,
+    "Email" VARCHAR(100) NOT NULL,
+    "PasswordHash" TEXT NOT NULL,
+    "CurrentLevel" INTEGER NOT NULL DEFAULT 1,
+    "TotalScore" INTEGER NOT NULL DEFAULT 0,
+    "HighestStreak" INTEGER NOT NULL DEFAULT 0,
+    "CreatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    "LastPlayedAt" TIMESTAMP WITH TIME ZONE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_Users_Username" ON "Users" ("Username");
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_Users_Email" ON "Users" ("Email");
+
+-- 2. Words Table
+CREATE TABLE IF NOT EXISTS "Words" (
+    "Id" SERIAL PRIMARY KEY,
+    "Text" VARCHAR(50) NOT NULL,
+    "Difficulty" INTEGER NOT NULL,
+    "Hint" VARCHAR(200),
+    "BasePoints" INTEGER NOT NULL,
+    "IsActive" BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_Words_Text" ON "Words" ("Text");
+CREATE INDEX IF NOT EXISTS "IX_Words_Difficulty" ON "Words" ("Difficulty");
+
+-- 3. GameSessions Table
+CREATE TABLE IF NOT EXISTS "GameSessions" (
+    "Id" SERIAL PRIMARY KEY,
+    "UserId" INTEGER NOT NULL,
+    "StartedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    "EndedAt" TIMESTAMP WITH TIME ZONE,
+    "SessionScore" INTEGER NOT NULL DEFAULT 0,
+    "CorrectAnswers" INTEGER NOT NULL DEFAULT 0,
+    "TotalQuestions" INTEGER NOT NULL DEFAULT 0,
+    "CurrentStreak" INTEGER NOT NULL DEFAULT 0,
+    "LevelAtStart" INTEGER NOT NULL,
+    "LevelAtEnd" INTEGER NOT NULL,
+    CONSTRAINT "FK_GameSessions_Users_UserId" FOREIGN KEY ("UserId")
+        REFERENCES "Users" ("Id") ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS "IX_GameSessions_UserId" ON "GameSessions" ("UserId");
+
+-- 4. GameRounds Table
+CREATE TABLE IF NOT EXISTS "GameRounds" (
+    "Id" SERIAL PRIMARY KEY,
+    "GameSessionId" INTEGER NOT NULL,
+    "WordId" INTEGER NOT NULL,
+    "ShuffledLetters" VARCHAR(100) NOT NULL,
+    "UserAnswer" VARCHAR(50),
+    "IsCorrect" BOOLEAN NOT NULL,
+    "PointsEarned" INTEGER NOT NULL,
+    "TimeAllowed" INTEGER NOT NULL,
+    "TimeTaken" INTEGER,
+    "PlayedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    CONSTRAINT "FK_GameRounds_GameSessions_GameSessionId" FOREIGN KEY ("GameSessionId")
+        REFERENCES "GameSessions" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_GameRounds_Words_WordId" FOREIGN KEY ("WordId")
+        REFERENCES "Words" ("Id") ON DELETE RESTRICT
+);
+
+CREATE INDEX IF NOT EXISTS "IX_GameRounds_GameSessionId" ON "GameRounds" ("GameSessionId");
+CREATE INDEX IF NOT EXISTS "IX_GameRounds_WordId" ON "GameRounds" ("WordId");
+
+-- 5. Seed Words Data
+INSERT INTO "Words" ("Id", "Text", "Difficulty", "BasePoints", "Hint", "IsActive") VALUES
+(1, 'CAT', 1, 10, 'A common pet', true),
+(2, 'DOG', 1, 10, 'Man''s best friend', true),
+(3, 'BIRD', 1, 15, 'Can fly', true),
+(4, 'FISH', 1, 15, 'Lives in water', true),
+(5, 'TREE', 1, 15, 'Has leaves', true),
+(6, 'HOUSE', 2, 20, 'Place to live', true),
+(7, 'WATER', 2, 20, 'Essential liquid', true),
+(8, 'BREAD', 2, 20, 'Baked food', true),
+(9, 'PHONE', 2, 20, 'Communication device', true),
+(10, 'MUSIC', 2, 20, 'Art of sound', true),
+(11, 'COMPUTER', 3, 30, 'Electronic device', true),
+(12, 'RAINBOW', 3, 30, 'Colorful arc', true),
+(13, 'LIBRARY', 3, 30, 'Book repository', true),
+(14, 'GARDEN', 3, 30, 'Place with plants', true),
+(15, 'KITCHEN', 3, 30, 'Cooking area', true),
+(16, 'ELEPHANT', 4, 40, 'Large animal with trunk', true),
+(17, 'MOUNTAIN', 4, 40, 'High landform', true),
+(18, 'BUTTERFLY', 4, 45, 'Colorful insect', true),
+(19, 'CHOCOLATE', 4, 45, 'Sweet treat', true),
+(20, 'ADVENTURE', 4, 45, 'Exciting journey', true),
+(21, 'KNOWLEDGE', 5, 50, 'Understanding gained', true),
+(22, 'UNIVERSITY', 5, 55, 'Higher education', true),
+(23, 'TECHNOLOGY', 5, 55, 'Applied science', true),
+(24, 'FRIENDSHIP', 5, 55, 'Close relationship', true),
+(25, 'CELEBRATION', 5, 60, 'Joyful event', true)
+ON CONFLICT ("Id") DO NOTHING;
+
+-- 6. Reset sequence
+SELECT setval('"Words_Id_seq"', (SELECT MAX("Id") FROM "Words"));
+
+-- 7. EF Core Migration History Table
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" VARCHAR(150) NOT NULL,
+    "ProductVersion" VARCHAR(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+
+-- 8. Verify setup
+SELECT COUNT(*) AS "TotalWords" FROM "Words";

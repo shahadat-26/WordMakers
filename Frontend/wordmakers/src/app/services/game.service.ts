@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GameSession, GameWord, SubmitAnswer, AnswerResult, LeaderboardEntry, GameStats } from '../models/game.models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:5178/api/game';
+  private readonly apiUrl = `${environment.apiUrl}/game`;
 
   startNewSession(): Observable<GameSession> {
     return this.http.post<GameSession>(`${this.apiUrl}/start`, {});
