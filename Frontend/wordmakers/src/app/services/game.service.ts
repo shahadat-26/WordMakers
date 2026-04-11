@@ -8,7 +8,7 @@ import { GameSession, GameWord, SubmitAnswer, AnswerResult, LeaderboardEntry, Ga
 })
 export class GameService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'https://localhost:7038/api/game';
+  private readonly apiUrl = 'http://localhost:5178/api/game';
 
   startNewSession(): Observable<GameSession> {
     return this.http.post<GameSession>(`${this.apiUrl}/start`, {});
