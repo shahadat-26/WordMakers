@@ -15,7 +15,6 @@ import { LeaderboardEntry } from '../../models/game.models';
         <h1>Leaderboard</h1>
 
         @if (isLoading()) {
-          <div class="loading">Loading leaderboard...</div>
         } @else if (leaderboard().length === 0) {
           <div class="no-data">No players yet. Be the first!</div>
         } @else {
