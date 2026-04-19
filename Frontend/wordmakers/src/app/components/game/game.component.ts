@@ -139,7 +139,6 @@ import { GameSession, GameWord, AnswerResult } from '../../models/game.models';
   styles: [`
     .game-container {
       min-height: 100vh;
-      background: linear-gradient(135deg, #ffffff 0%, #e6f2ff 100%);
     }
 
     .game-header {

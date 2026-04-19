@@ -62,7 +62,6 @@ import { LeaderboardEntry } from '../../models/game.models';
   styles: [`
     .leaderboard-container {
       min-height: 100vh;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       display: flex;
       justify-content: center;
       align-items: center;
